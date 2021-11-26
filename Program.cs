@@ -10,7 +10,8 @@ namespace azure_hsm_signing
       AzureHSMService azureHSMService = new AzureHSMService();
       byte[] messageToSign = System.Text.Encoding.ASCII.GetBytes("Hello World");
       byte[] hashValue = SHA256.Create().ComputeHash(messageToSign);
-      azureHSMService.Sign(hashValue);
+      byte[] signedDigest = azureHSMService.Sign(hashValue);
+      azureHSMService.Verify(hashValue, signedDigest);
     }
   }
 }
