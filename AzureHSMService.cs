@@ -9,7 +9,7 @@ namespace azure_hsm_signing {
   public class AzureHSMService
   {
     private readonly string debugCategory = "AzureHSMService";
-    CryptographyClient rsaCryptoClient;
+    private CryptographyClient RsaCryptoClient { get; set; }
     public AzureHSMService()
     {
       // The URL that the KeyVault is hosted at on Azure
@@ -21,14 +21,14 @@ namespace azure_hsm_signing {
       KeyVaultKey rsaKey = keyClient.GetKey(certificateName);
       Debug.WriteLine($"Key is returned with name {rsaKey.Name} and type {rsaKey.KeyType}", debugCategory);
 
-      rsaCryptoClient = new CryptographyClient(rsaKey.Id, new DefaultAzureCredential());
+      RsaCryptoClient = new CryptographyClient(rsaKey.Id, new DefaultAzureCredential());
     }
 
     public byte[] Sign(byte[] digest, SignatureAlgorithm? signatureAlgorithm = null)
     {
       // Since the default value in the function signature needs to be a compile-time constant, this is a workaround
       SignatureAlgorithm algorithm = signatureAlgorithm ?? SignatureAlgorithm.RS256;
-      SignResult rsaSignResult = rsaCryptoClient.Sign(algorithm, digest);
+      SignResult rsaSignResult = RsaCryptoClient.Sign(algorithm, digest);
       Debug.WriteLine(
         $"Signed digest using the algorithm {rsaSignResult.Algorithm}, with key {rsaSignResult.KeyId}. The resulting signature is {Convert.ToBase64String(rsaSignResult.Signature)}",
         debugCategory
@@ -40,7 +40,7 @@ namespace azure_hsm_signing {
     {
       // Since the default value in the function signature needs to be a compile-time constant, this is a workaround
       SignatureAlgorithm algorithm = signatureAlgorithm ?? SignatureAlgorithm.RS256;
-      VerifyResult rsaVerifyResult = rsaCryptoClient.Verify(algorithm, originalDigest, signedDigest);
+      VerifyResult rsaVerifyResult = RsaCryptoClient.Verify(algorithm, originalDigest, signedDigest);
       Console.WriteLine($"Verified the signature using the algorithm {rsaVerifyResult.Algorithm}, with key:\n{rsaVerifyResult.KeyId}.\n\nSignature is valid:\n{rsaVerifyResult.IsValid}");
     }
   }
