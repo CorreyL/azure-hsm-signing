@@ -1,9 +1,6 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 
 using pdftron.PDF;
-
-using System.Security.Cryptography;
 
 namespace azure_hsm_signing
 {
