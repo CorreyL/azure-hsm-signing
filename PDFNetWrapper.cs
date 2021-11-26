@@ -47,5 +47,15 @@ namespace azure_hsm_signing
       DigitalSignatureField certification_sig_field = doc.CreateDigitalSignatureField(signatureFieldName);
       return certification_sig_field.CalculateDigest(digestAlgorithm);
     }
+
+    public void SavePdfWithDigitalSignature(PDFDoc doc, string signatureFieldName, byte[] pkcs7message, string pdfDirectory, string nameOfFile)
+    {
+      DigitalSignatureField certification_sig_field = doc.CreateDigitalSignatureField(signatureFieldName);
+      doc.SaveCustomSignature(
+        pkcs7message,
+        certification_sig_field,
+        $"{pdfDirectory}{nameOfFile}"
+      );
+    }
   }
 }
