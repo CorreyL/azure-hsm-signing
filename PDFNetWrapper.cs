@@ -1,6 +1,7 @@
 ﻿using System;
 
 using pdftron;
+using pdftron.Crypto;
 using pdftron.PDF;
 using pdftron.PDF.Annots;
 using pdftron.SDF;
@@ -39,6 +40,12 @@ namespace azure_hsm_signing
 
       byte[] newDoc = doc.Save(SDFDoc.SaveOptions.e_incremental);
       return new PDFDoc(newDoc, newDoc.Length);
+    }
+
+    public byte[] GetPdfDigest(PDFDoc doc, string signatureFieldName, DigestAlgorithm.Type digestAlgorithm = DigestAlgorithm.Type.e_sha256)
+    {
+      DigitalSignatureField certification_sig_field = doc.CreateDigitalSignatureField(signatureFieldName);
+      return certification_sig_field.CalculateDigest(digestAlgorithm);
     }
   }
 }
