@@ -8,7 +8,7 @@ using Azure.Security.KeyVault.Keys.Cryptography;
 namespace azure_hsm_signing {
   public class AzureHSMService
   {
-    private string debugCategory = "AzureHSMService";
+    private readonly string debugCategory = "AzureHSMService";
     CryptographyClient rsaCryptoClient;
     public AzureHSMService()
     {
