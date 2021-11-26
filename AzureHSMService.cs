@@ -22,5 +22,16 @@ namespace azure_hsm_signing {
 
 			rsaCryptoClient = new CryptographyClient(rsaKey.Id, new DefaultAzureCredential());
 		}
+
+		public byte[] Sign(byte[] digest, SignatureAlgorithm? signatureAlgorithm = null)
+		{
+			// Since the default value in the function signature needs to be a compile-time constant, this is a workaround
+			SignatureAlgorithm algorithm = signatureAlgorithm ?? SignatureAlgorithm.RS256;
+			SignResult rsaSignResult = rsaCryptoClient.Sign(algorithm, digest);
+			Debug.WriteLine(
+				$"Signed digest using the algorithm {rsaSignResult.Algorithm}, with key {rsaSignResult.KeyId}. The resulting signature is {Convert.ToBase64String(rsaSignResult.Signature)}"
+			);
+			return rsaSignResult.Signature;
+		}
 	}
 }
