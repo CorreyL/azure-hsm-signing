@@ -25,6 +25,10 @@ namespace azure_hsm_signing
       };
 
       PDFNetWrapper pdfnetWrapper = new PDFNetWrapper(pdfnetLicenseKey);
+      /**
+       * TODO @colim 2021-11-26
+       * It would probably be cleaner to keep the instantiations of PDFDoc inside of the instances of the PDFNetWrapper class
+       */
       PDFDoc doc = new PDFDoc(pathToPdf);
       PDFDoc docWithSigDictForCustomSigning = pdfnetWrapper.PreparePdfForCustomSigning(doc, signatureFieldName);
       byte[] pdfDigest = pdfnetWrapper.GetPdfDigest(docWithSigDictForCustomSigning, signatureFieldName);
