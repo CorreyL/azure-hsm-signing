@@ -13,3 +13,10 @@ $Env:AZURE_TENANT_ID="your-azure-tenant-id"
 $Env:AZURE_CLIENT_ID="your-azure-client-id"
 $Env:AZURE_CLIENT_SECRET="your-client-secret-associated-with-azure-client-id"
 ```
+
+And add your [PDFNet License Key](https://www.pdftron.com/download-center/windows/) to the file `.pdfnetlicensekey`
+
+```sh
+mv empty.pdfnetlicensekey .pdfnetlicensekey
+# Add license key to .pdfnetlicensekey
+```
