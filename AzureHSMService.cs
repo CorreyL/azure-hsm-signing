@@ -8,6 +8,7 @@ using Azure.Security.KeyVault.Keys.Cryptography;
 namespace azure_hsm_signing {
 	public class AzureHSMService
 	{
+		private string debugCategory = "AzureHSMService";
 		CryptographyClient rsaCryptoClient;
 		public AzureHSMService()
 		{
@@ -18,7 +19,7 @@ namespace azure_hsm_signing {
 
 			KeyClient keyClient = new KeyClient(new Uri(hsmUrl), new VisualStudioCredential());
 			KeyVaultKey rsaKey = keyClient.GetKey(certificateName);
-			Debug.WriteLine($"Key is returned with name {rsaKey.Name} and type {rsaKey.KeyType}");
+			Debug.WriteLine($"Key is returned with name {rsaKey.Name} and type {rsaKey.KeyType}", debugCategory);
 
 			rsaCryptoClient = new CryptographyClient(rsaKey.Id, new DefaultAzureCredential());
 		}
@@ -29,7 +30,8 @@ namespace azure_hsm_signing {
 			SignatureAlgorithm algorithm = signatureAlgorithm ?? SignatureAlgorithm.RS256;
 			SignResult rsaSignResult = rsaCryptoClient.Sign(algorithm, digest);
 			Debug.WriteLine(
-				$"Signed digest using the algorithm {rsaSignResult.Algorithm}, with key {rsaSignResult.KeyId}. The resulting signature is {Convert.ToBase64String(rsaSignResult.Signature)}"
+				$"Signed digest using the algorithm {rsaSignResult.Algorithm}, with key {rsaSignResult.KeyId}. The resulting signature is {Convert.ToBase64String(rsaSignResult.Signature)}",
+				debugCategory
 			);
 			return rsaSignResult.Signature;
 		}
