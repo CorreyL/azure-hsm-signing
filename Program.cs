@@ -6,7 +6,7 @@ namespace azure_hsm_signing
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Hello World!");
+            new AzureHSMService();
         }
     }
 }
