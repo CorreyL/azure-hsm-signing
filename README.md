@@ -4,7 +4,7 @@ This repository is a sample for how to perform signing and verification of arbit
 
 ## Prerequisites
 
-Before running this program, you must have the following environment variables declared:
+Before running this program, you must have the following environment variables declared using [PowerShell](https://docs.microsoft.com/en-us/powershell/#powershell-editions---tools):
 
 ```PowerShell
 # https://portal.azure.com/#blade/Microsoft_AAD_IAM/ActiveDirectoryMenuBlade/Overview
