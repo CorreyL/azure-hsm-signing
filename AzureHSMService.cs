@@ -41,7 +41,7 @@ namespace azure_hsm_signing {
       // Since the default value in the function signature needs to be a compile-time constant, this is a workaround
       SignatureAlgorithm algorithm = signatureAlgorithm ?? SignatureAlgorithm.RS256;
       VerifyResult rsaVerifyResult = rsaCryptoClient.Verify(algorithm, originalDigest, signedDigest);
-      Console.WriteLine($"Verified the signature using the algorithm {rsaVerifyResult.Algorithm}, with key {rsaVerifyResult.KeyId}. Signature is valid: {rsaVerifyResult.IsValid}");
+      Console.WriteLine($"Verified the signature using the algorithm {rsaVerifyResult.Algorithm}, with key:\n{rsaVerifyResult.KeyId}.\n\nSignature is valid:\n{rsaVerifyResult.IsValid}");
     }
   }
 }
