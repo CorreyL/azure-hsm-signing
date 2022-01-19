@@ -10,6 +10,7 @@ namespace azure_hsm_signing
 {
   public class PDFNetWrapper {
     public PDFNetWrapper(string licenseKey) {
+      Console.WriteLine($"PDFNet Version: {PDFNet.GetVersionString()}");
       PDFNet.Initialize(licenseKey);
     }
     public PDFDoc PreparePdfForCustomSigning(PDFDoc doc, string signatureFieldName, uint sizeOfContents = 7500)
