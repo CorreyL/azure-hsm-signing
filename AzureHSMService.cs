@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Diagnostics;
 
+using Azure;
 using Azure.Identity;
 using Azure.Security.KeyVault.Keys;
+using Azure.Security.KeyVault.Certificates;
 using Azure.Security.KeyVault.Keys.Cryptography;
 
 namespace azure_hsm_signing {
@@ -10,6 +12,7 @@ namespace azure_hsm_signing {
   {
     private readonly string debugCategory = "AzureHSMService";
     private CryptographyClient RsaCryptoClient { get; set; }
+    private Response<KeyVaultCertificateWithPolicy> certResponse { get; set; }
     public AzureHSMService()
     {
       // The URL that the KeyVault is hosted at on Azure
@@ -18,6 +21,8 @@ namespace azure_hsm_signing {
       const string certificateName = "hsm-test";
 
       KeyClient keyClient = new KeyClient(new Uri(hsmUrl), new VisualStudioCredential());
+      CertificateClient certificateClient = new CertificateClient(new Uri(hsmUrl), new VisualStudioCredential());
+      certResponse = certificateClient.GetCertificate(certificateName);
       KeyVaultKey rsaKey = keyClient.GetKey(certificateName);
       Debug.WriteLine($"Key is returned with name {rsaKey.Name} and type {rsaKey.KeyType}", debugCategory);
 
@@ -42,6 +47,11 @@ namespace azure_hsm_signing {
       SignatureAlgorithm algorithm = signatureAlgorithm ?? SignatureAlgorithm.RS256;
       VerifyResult rsaVerifyResult = RsaCryptoClient.Verify(algorithm, originalDigest, signedDigest);
       Console.WriteLine($"Verified the signature using the algorithm {rsaVerifyResult.Algorithm}, with key:\n{rsaVerifyResult.KeyId}.\n\nSignature is valid:\n{rsaVerifyResult.IsValid}");
+    }
+
+    public byte[] GetPublicCertificateInPemFormat()
+    {
+      return certResponse.Value.Cer;
     }
   }
 }
