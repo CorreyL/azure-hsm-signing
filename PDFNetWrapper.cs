@@ -58,5 +58,10 @@ namespace azure_hsm_signing
         $"{pdfDirectory}{nameOfFile}"
       );
     }
+    public pdftron.Crypto.X509Certificate CreatePdftronX509Certificate(byte[] certificateInPemFormat)
+    {
+      X509Certificate[] chain_certs = new X509Certificate[] { new X509Certificate(certificateInPemFormat) };
+      return new pdftron.Crypto.X509Certificate(certificateInPemFormat);
+    }
   }
 }
