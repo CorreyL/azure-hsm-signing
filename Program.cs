@@ -1,5 +1,6 @@
 ﻿using System.IO;
 
+using pdftron.Crypto;
 using pdftron.PDF;
 
 namespace azure_hsm_signing
@@ -12,6 +13,8 @@ namespace azure_hsm_signing
       const string nameOfFile = "waiver.pdf";
       const string signatureFieldName = "Signature1";
       const string pathToLicenseKey = "../../../.pdfnetlicensekey";
+      const string outputPdfName = "hsmSigned.pdf";
+      string outputPathAndName = $"{pdfDirectory}{outputPdfName}";
       if (!File.Exists(pathToLicenseKey))
       {
         throw new FileNotFoundException(pathToLicenseKey);
@@ -31,18 +34,40 @@ namespace azure_hsm_signing
        */
       PDFDoc doc = new PDFDoc(pathToPdf);
       PDFDoc docWithSigDictForCustomSigning = pdfnetWrapper.PreparePdfForCustomSigning(doc, signatureFieldName);
-      byte[] pdfDigest = pdfnetWrapper.GetPdfDigest(docWithSigDictForCustomSigning, signatureFieldName);
+      byte[] pdfDigest = pdfnetWrapper.GetPdfDigest();
       AzureHSMService azureHSMService = new AzureHSMService();
-      // byte[] messageToSign = System.Text.Encoding.ASCII.GetBytes("Hello World");
-      // byte[] hashValue = SHA256.Create().ComputeHash(messageToSign);
-      byte[] signedDigest = azureHSMService.Sign(pdfDigest);
-      azureHSMService.Verify(pdfDigest, signedDigest);
-      /**
-       * TODO @colim 2021-11-26
-       * Add logic to build a PKCS#7 compliant message when the API is available in PDFNet
-       */
-      // byte[] pkcs7message;
-      // pdfnetWrapper.SavePdfWithDigitalSignature(docWithSigDictForCustomSigning, signatureFieldName, pkcs7message, pdfDirectory, signatureFieldName);
+
+      DigestAlgorithm.Type in_digest_algorithm_type = DigestAlgorithm.Type.e_sha256;
+      pdftron.Crypto.X509Certificate signer_cert = pdfnetWrapper.CreatePdftronX509Certificate(azureHSMService.GetPublicCertificateInPemFormat());
+      byte[] pades_versioned_ess_signing_cert_attribute = DigitalSignatureField.GenerateESSSigningCertPAdESAttribute(signer_cert, in_digest_algorithm_type);
+      byte[] signedAttrs = DigitalSignatureField.GenerateCMSSignedAttributes(pdfDigest, pades_versioned_ess_signing_cert_attribute);
+      byte[] signedAttrsDigest = DigestAlgorithm.CalculateDigest(in_digest_algorithm_type, signedAttrs);
+
+      // Azure KeyVault signing
+      byte[] rsaSignResult = azureHSMService.Sign(signedAttrsDigest);
+
+      X509Certificate[] chain_certs = new X509Certificate[] { signer_cert };
+      int[] digest_alg_oid_nums = new int[] { 2, 16, 840, 1, 101, 3, 4, 2, 1 }; // sha-256
+      ObjectIdentifier digest_algorithm_oid = new ObjectIdentifier(digest_alg_oid_nums);
+      // Use appropriate signature algorithm OID
+      // const UInt32 sig_alg_oid_nums[] = new UInt32[]{ 1, 2, 840, 113549, 1, 1, 1 }; // rsaEncryption
+      int[] sig_alg_oid_nums = new int[] { 1, 2, 840, 113549, 1, 1, 11 }; // sha256WithRSAEncryption
+      ObjectIdentifier signature_algorithm_oid = new ObjectIdentifier(sig_alg_oid_nums);
+
+      byte[] signature = DigitalSignatureField.GenerateCMSSignature(
+        signer_cert,
+        chain_certs,
+        digest_algorithm_oid,
+        signature_algorithm_oid,
+        rsaSignResult,
+        signedAttrs
+      );
+      DigitalSignatureField digitalSignatureField = pdfnetWrapper.GetDigitalSignatureField();
+      docWithSigDictForCustomSigning.SaveCustomSignature(
+        signature,
+        digitalSignatureField,
+        outputPathAndName
+      );
     }
   }
 }
