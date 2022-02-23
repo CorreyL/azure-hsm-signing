@@ -39,8 +39,8 @@ namespace azure_hsm_signing
           sizeOfContents
       );
 
-      byte[] newDoc = doc.Save(SDFDoc.SaveOptions.e_incremental);
-      return new PDFDoc(newDoc, newDoc.Length);
+      doc.Save(SDFDoc.SaveOptions.e_incremental);
+      return doc;
     }
 
     public byte[] GetPdfDigest(PDFDoc doc, string signatureFieldName, DigestAlgorithm.Type digestAlgorithm = DigestAlgorithm.Type.e_sha256)
