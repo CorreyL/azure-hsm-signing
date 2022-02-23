@@ -9,6 +9,7 @@ using pdftron.SDF;
 namespace azure_hsm_signing
 {
   public class PDFNetWrapper {
+    private static DigitalSignatureField certification_sig_field;
     public PDFNetWrapper(string licenseKey) {
       Console.WriteLine($"PDFNet Version: {PDFNet.GetVersionString()}");
       PDFNet.Initialize(licenseKey);
@@ -23,7 +24,7 @@ namespace azure_hsm_signing
         throw new Exception($"The field {signatureFieldName} is locked by a Digital Signature, and thus cannot be Digitally Signed again");
       }
 
-      DigitalSignatureField certification_sig_field = doc.CreateDigitalSignatureField(signatureFieldName);
+      certification_sig_field = doc.CreateDigitalSignatureField(signatureFieldName);
       SignatureWidget widgetAnnot = SignatureWidget.Create(doc, new Rect(), certification_sig_field);
 
       page1.AnnotPushBack(widgetAnnot);
@@ -43,9 +44,12 @@ namespace azure_hsm_signing
       return doc;
     }
 
-    public byte[] GetPdfDigest(PDFDoc doc, string signatureFieldName, DigestAlgorithm.Type digestAlgorithm = DigestAlgorithm.Type.e_sha256)
+    public DigitalSignatureField GetDigitalSignatureField() {
+      return certification_sig_field;
+    }
+
+    public byte[] GetPdfDigest(DigestAlgorithm.Type digestAlgorithm = DigestAlgorithm.Type.e_sha256)
     {
-      DigitalSignatureField certification_sig_field = doc.CreateDigitalSignatureField(signatureFieldName);
       return certification_sig_field.CalculateDigest(digestAlgorithm);
     }
 
