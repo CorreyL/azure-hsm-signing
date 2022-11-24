@@ -1,6 +1,7 @@
 ﻿using System.IO;
 
 using pdftron.Crypto;
+using pdftron.Filters;
 using pdftron.PDF;
 
 namespace azure_hsm_signing
@@ -63,6 +64,19 @@ namespace azure_hsm_signing
         signedAttrs
       );
       DigitalSignatureField digitalSignatureField = pdfnetWrapper.GetDigitalSignatureField();
+      byte[] pdfBytes = new byte[20000];
+
+      using (MemoryFilter pdftronFilter = new MemoryFilter(1000, false))
+      {
+        doc.SaveCustomSignature(signature, digitalSignatureField, pdftronFilter);
+        FilterReader filterReader = new FilterReader(pdftronFilter);
+        pdftronFilter.SetAsInputFilter();
+        filterReader.Read(pdfBytes);
+        pdfBytes = pdftronFilter.GetBuffer();
+      }
+
+      File.WriteAllBytes("sample1_signed_with_filter.pdf", pdfBytes);
+
       docWithSigDictForCustomSigning.SaveCustomSignature(
         signature,
         digitalSignatureField,
