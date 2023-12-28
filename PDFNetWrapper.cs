@@ -16,18 +16,16 @@ namespace azure_hsm_signing
     }
     public PDFDoc PreparePdfForCustomSigning(PDFDoc doc, string signatureFieldName, uint sizeOfContents = 7500)
     {
-      Page page1 = doc.GetPage(1);
       Field found_approval_field = doc.GetField(signatureFieldName);
       bool isLockedByDigitalSignature = found_approval_field != null && found_approval_field.IsLockedByDigitalSignature();
+
       if (isLockedByDigitalSignature)
       {
         throw new Exception($"The field {signatureFieldName} is locked by a Digital Signature, and thus cannot be Digitally Signed again");
       }
 
-      certification_sig_field = doc.CreateDigitalSignatureField(signatureFieldName);
-      SignatureWidget widgetAnnot = SignatureWidget.Create(doc, new Rect(), certification_sig_field);
+      certification_sig_field = new DigitalSignatureField(found_approval_field);
 
-      page1.AnnotPushBack(widgetAnnot);
       certification_sig_field.SetDocumentPermissions(DigitalSignatureField.DocumentPermissions.e_no_changes_allowed);
 
       // Prepare the signature and signature handler for signing.
@@ -55,7 +53,8 @@ namespace azure_hsm_signing
 
     public void SavePdfWithDigitalSignature(PDFDoc doc, string signatureFieldName, byte[] pkcs7message, string pdfDirectory, string nameOfFile)
     {
-      DigitalSignatureField certification_sig_field = doc.CreateDigitalSignatureField(signatureFieldName);
+      Field certification_field = doc.GetField(signatureFieldName);
+      DigitalSignatureField certification_sig_field = new DigitalSignatureField(certification_field);
       doc.SaveCustomSignature(
         pkcs7message,
         certification_sig_field,

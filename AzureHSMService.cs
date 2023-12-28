@@ -16,9 +16,9 @@ namespace azure_hsm_signing {
     public AzureHSMService()
     {
       // The URL that the KeyVault is hosted at on Azure
-      const string hsmUrl = "https://pdftron-hsm-digsigs.vault.azure.net/";
+      const string hsmUrl = "https://apryse.vault.azure.net/";
       // The name of the non-exportable Certificate under the KeyVault named pdftron-hsm-digsigs
-      const string certificateName = "hsm-test";
+      const string certificateName = "Pdftron";
 
       KeyClient keyClient = new KeyClient(new Uri(hsmUrl), new VisualStudioCredential());
       CertificateClient certificateClient = new CertificateClient(new Uri(hsmUrl), new VisualStudioCredential());
