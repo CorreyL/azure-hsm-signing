@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 
 using pdftron.Crypto;
 using pdftron.PDF;
@@ -50,7 +51,7 @@ namespace azure_hsm_signing
       int[] digest_alg_oid_nums = new int[] { 2, 16, 840, 1, 101, 3, 4, 2, 1 }; // sha-256
       ObjectIdentifier digest_algorithm_oid = new ObjectIdentifier(digest_alg_oid_nums);
       // Use appropriate signature algorithm OID
-      // const UInt32 sig_alg_oid_nums[] = new UInt32[]{ 1, 2, 840, 113549, 1, 1, 1 }; // rsaEncryption
+      //int[] sig_alg_oid_nums = new int[]{ 1, 2, 840, 113549, 1, 1, 1 }; // rsaEncryption
       int[] sig_alg_oid_nums = new int[] { 1, 2, 840, 113549, 1, 1, 11 }; // sha256WithRSAEncryption
       ObjectIdentifier signature_algorithm_oid = new ObjectIdentifier(sig_alg_oid_nums);
 
